@@ -13,6 +13,30 @@ class TokenData(BaseModel):
 
 
 # User schemas
+class UserSettingBase(BaseModel):
+    currency: Optional[str] = "USD"
+    language: Optional[str] = "en"
+    theme: Optional[str] = "light"
+    notifications_enabled: Optional[bool] = True
+    email_notifications: Optional[bool] = True
+    expense_reminders: Optional[bool] = True
+    budget_alerts: Optional[bool] = True
+    goal_updates: Optional[bool] = True
+
+
+class UserSettingCreate(UserSettingBase):
+    pass
+
+
+class UserSetting(UserSettingBase):
+    id: int
+    user_id: int
+
+    class Config:
+        orm_mode = True
+
+
+# User schemas
 class UserBase(BaseModel):
     name: str
     email: EmailStr
@@ -25,6 +49,7 @@ class UserCreate(UserBase):
 class User(UserBase):
     id: int
     created_at: datetime
+    settings: Optional[UserSetting] = None
 
     class Config:
         orm_mode = True
@@ -100,6 +125,10 @@ class RecurringExpense(RecurringExpenseBase):
 class BudgetBase(BaseModel):
     category: str
     monthly_limit: float
+    current_amount: Optional[float] = 0.0
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
+    alert_threshold: Optional[float] = 80.0
 
 
 class BudgetCreate(BudgetBase):
@@ -163,6 +192,30 @@ class PersonCreate(PersonBase):
 
 
 class Person(PersonBase):
+    id: int
+    user_id: int
+
+    class Config:
+        orm_mode = True
+
+
+# UserSetting schemas
+class UserSettingBase(BaseModel):
+    currency: Optional[str] = "USD"
+    language: Optional[str] = "en"
+    theme: Optional[str] = "light"
+    notifications_enabled: Optional[bool] = True
+    email_notifications: Optional[bool] = True
+    expense_reminders: Optional[bool] = True
+    budget_alerts: Optional[bool] = True
+    goal_updates: Optional[bool] = True
+
+
+class UserSettingCreate(UserSettingBase):
+    pass
+
+
+class UserSetting(UserSettingBase):
     id: int
     user_id: int
 

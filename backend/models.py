@@ -1,7 +1,7 @@
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Float, DateTime, Table, ARRAY
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import JSONB
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from database import Base
 
@@ -35,6 +35,7 @@ class User(Base):
     budgets = relationship("Budget", back_populates="user")
     goals = relationship("Goal", back_populates="user")
     people = relationship("Person", back_populates="user")
+    settings = relationship("UserSetting", back_populates="user", uselist=False)
 
 
 class Expense(Base):
@@ -97,6 +98,10 @@ class Budget(Base):
     user_id = Column(Integer, ForeignKey("users.id"))
     category = Column(String, index=True)
     monthly_limit = Column(Float)
+    current_amount = Column(Float, default=0.0)
+    start_date = Column(DateTime, default=datetime.utcnow)
+    end_date = Column(DateTime, default=lambda: datetime.utcnow() + timedelta(days=30))
+    alert_threshold = Column(Float, default=80.0)
 
     # Relationships
     user = relationship("User", back_populates="budgets")
@@ -140,3 +145,20 @@ class Person(Base):
     # Relationships
     user = relationship("User", back_populates="people")
     expenses = relationship("Expense", back_populates="person_rel")
+
+
+class UserSetting(Base):
+    __tablename__ = "user_settings"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), unique=True)
+    currency = Column(String, default="USD")
+    language = Column(String, default="en")
+    theme = Column(String, default="light")
+    notifications_enabled = Column(Boolean, default=True)
+    email_notifications = Column(Boolean, default=True)
+    expense_reminders = Column(Boolean, default=True)
+    budget_alerts = Column(Boolean, default=True)
+    goal_updates = Column(Boolean, default=True)
+
+    user = relationship("User", back_populates="settings")
